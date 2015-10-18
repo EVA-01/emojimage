@@ -25,18 +25,22 @@ module Emojimage
 	def within path
 		File.expand_path path, @@where
 	end
-	def average colors
-		color = [0.0,0.0,0.0]
+	def average colors, transparentBlock = false
+		color = [0.0,0.0,0.0,0.0]
 		count = 0
 		for pxl in colors
-			if ChunkyPNG::Color.a(pxl) > 0
-				color[0] += ChunkyPNG::Color.r pxl
-				color[1] += ChunkyPNG::Color.g pxl
-				color[2] += ChunkyPNG::Color.b pxl
-				count += 1
-			end
+			weight = ((255 - (ChunkyPNG::Color.a pxl)) / 255.0).to_f
+			color[0] += ((1 - weight) * (ChunkyPNG::Color.r pxl) + weight * 255)
+			color[1] += ((1 - weight) * (ChunkyPNG::Color.g pxl) + weight * 255)
+			color[2] += ((1 - weight) * (ChunkyPNG::Color.b pxl) + weight * 255)
+			color[3] += ChunkyPNG::Color.a pxl
+			count += 1
 		end
-		ChunkyPNG::Color.rgb (color[0]/count.to_f).round, (color[1]/count.to_f).round, (color[2]/count.to_f).round
+		if transparentBlock and color[3] == 0.0
+			ChunkyPNG::Color::TRANSPARENT
+		else
+			ChunkyPNG::Color.rgb (color[0]/count.to_f).round, (color[1]/count.to_f).round, (color[2]/count.to_f).round
+		end
 	end
 	def analyze img
 		average img.pixels
@@ -86,12 +90,16 @@ module Emojimage
 			setup
 			data = emojinfo
 		end
-		data["characters"].min_by { |char| compare color, char["value"] }
+		if color == ChunkyPNG::Color::TRANSPARENT
+			false
+		else
+			data["characters"].min_by { |char| compare color, char["value"] }
+		end
 	end
 	def chunkemoji e
 		ChunkyPNG::Image.from_file(where e)
 	end
-	def cast img, size = 4
+	def cast img, size = 4, transparentBlock = false
 		if img.class == String
 			img = ChunkyPNG::Image.from_file img
 		elsif img.class != ChunkyPNG::Image
@@ -113,13 +121,16 @@ module Emojimage
 						end
 					end
 				end
-				value = average pxls
-				emoji = chunkemoji(find(value)).resample_bilinear size, size
-				for y in 0...size
-					if img.include_y?(y + row)
-						for x in 0...emoji.width
-							if img.include_x?(x + column)
-								nu[x + column, y + row] = emoji[x, y]
+				value = average pxls, transparentBlock
+				unless value == ChunkyPNG::Color::TRANSPARENT
+					found = find value
+					emoji = chunkemoji(found).resample_nearest_neighbor size, size
+					for y in 0...size
+						if img.include_y?(y + row)
+							for x in 0...emoji.width
+								if img.include_x?(x + column)
+									nu[x + column, y + row] = emoji[x, y]
+								end
 							end
 						end
 					end
