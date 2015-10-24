@@ -33,4 +33,5 @@ Gem::Specification.new do |spec|
   spec.add_runtime_dependency "gemoji", "~> 2.1.0"
   spec.add_runtime_dependency "json", "~> 1.8.3"
   spec.add_runtime_dependency "oily_png", "~> 1.2.0"
+  spec.add_runtime_dependency "thor", "~> 0.19.1"
 end
