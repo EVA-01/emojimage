@@ -9,3 +9,4 @@
 /tmp/
 public/data/*.json
 public/images
+.DS_Store

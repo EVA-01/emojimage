@@ -5,7 +5,7 @@ module Emojimage
 			if img.class == String
 				img = ChunkyPNG::Image.from_file img
 			elsif img.class != ChunkyPNG::Image
-				raise "Unknown image representation in Emojimage.cast"
+				raise "Unknown image representation"
 			end
 			if size < 1
 				raise "Use a size more than 0"
@@ -26,11 +26,11 @@ module Emojimage
 							end
 						end
 					end
-					value = Emojimage.average pxls, transparentBlock
+					value = Emojimage.average pxls, transparentBlock, blend
 					if value == ChunkyPNG::Color::TRANSPARENT
 						rowmoji << " "
 					else
-						found = Emojimage.find value
+						found = Emojimage.find value, blend
 						rowmoji << found
 						emoji = Emojimage.chunkemoji(found).resample_nearest_neighbor size, size
 						for y in 0...size

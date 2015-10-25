@@ -44,17 +44,17 @@ module Emojimage
 	def analyze img
 		average img.pixels
 	end
-	def setup?
-		gemojiV = Gem.loaded_specs['gemoji'].version.to_s
+	def setup? blend
+		gemojiV = "#{Gem.loaded_specs['gemoji'].version.to_s}\n#{blend}"
 		lastImport = File.open(within("../public/data/.last"), 'rb') { |f| f.read }
 		lastImport == gemojiV
 	end
-	def setup
-		gemojiV = Gem.loaded_specs['gemoji'].version.to_s
-		unless setup?
+	def setup blend
+		gemojiV = "#{Gem.loaded_specs['gemoji'].version.to_s}\n#{blend}"
+		unless setup? blend
 			system("cd #{within "../"} && rake emoji")
 			# puts "Initialized emoji images"
-			codify
+			codify blend
 			File.open(within("../public/data/.last"), "w+") { |f| f.write gemojiV }
 			# puts "Analyzed emoji images"
 		end
@@ -72,13 +72,13 @@ module Emojimage
 	def unpackhex c
 		c.hex_inspect.split '-'
 	end
-	def codify
+	def codify blend = ChunkyPNG::Color::WHITE
 		res = {"characters" => []}
 		for e in @@emoji
 			png = chunkemoji e
 			res["characters"] << {
 				"filename" => e.image_filename,
-				"value" => analyze(png),
+				"value" => average(png.pixels, false, blend),
 				"unicode" => e.unicode_aliases.first,
 				"key" => unpackhex(e)
 			}
@@ -88,12 +88,9 @@ module Emojimage
 	def compare c1, c2
 		Math.sqrt((ChunkyPNG::Color.r(c1)-ChunkyPNG::Color.r(c2))**2+(ChunkyPNG::Color.g(c1)-ChunkyPNG::Color.g(c2))**2+(ChunkyPNG::Color.b(c1)-ChunkyPNG::Color.b(c2))**2)
 	end
-	def find color
+	def find color, blend
+		setup blend
 		data = emojinfo
-		if data == false
-			setup
-			data = emojinfo
-		end
 		if color == ChunkyPNG::Color::TRANSPARENT
 			false
 		else
