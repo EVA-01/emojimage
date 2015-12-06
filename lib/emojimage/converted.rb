@@ -1,7 +1,7 @@
 module Emojimage
 	class Converted
 		attr_reader :image, :size, :emoji
-		def initialize img, size = 4, transparentBlock = false, blend = ChunkyPNG::Color::WHITE
+		def initialize img, size = 4
 			if img.class == String
 				img = ChunkyPNG::Image.from_file img
 			elsif img.class != ChunkyPNG::Image
@@ -11,9 +11,14 @@ module Emojimage
 				raise "Use a size more than 0"
 			end
 			@size = size
+			@emoji = []
+			@image = nil
+			@original = img
+		end
+		def run transparentBlock = false, blend = ChunkyPNG::Color::WHITE
+			img = @original
 			w = img.width
 			h = img.height
-			@emoji = []
 			@image = ChunkyPNG::Image.new(w, h)
 			(0...h).step(size).each do |row|
 				rowmoji = []
@@ -48,6 +53,7 @@ module Emojimage
 			end
 		end
 		def text
+			raise "Use 'run' first" if @image == nil
 			rows = []
 			for row in @emoji
 				txt = ""
@@ -63,6 +69,7 @@ module Emojimage
 			rows.join "\n"
 		end
 		def html wrap = false
+			raise "Use 'run' first" if @image == nil
 			rows = []
 			for row in @emoji
 				txt = ""
@@ -84,6 +91,7 @@ module Emojimage
 			end
 		end
 		def save fn, what = :image, wrap = false
+			raise "Use 'run' first" if @image == nil
 			case what
 			when :image
 				@image.save fn
