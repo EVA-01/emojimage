@@ -1,41 +1,24 @@
-# Emojimage
+# Emojimage [![Gem Version](https://badge.fury.io/rb/emojimage.svg)](https://badge.fury.io/rb/emojimage)
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/emojimage`. To experiment with that code, run `bin/console` for an interactive prompt.
-
-TODO: Delete this and the text above, and describe your gem
+Emojimage takes an input PNG image (sorry, JPG lovers!) and outputs it composed of emoji.
 
 ## Installation
 
-Add this line to your application's Gemfile:
-
-```ruby
-gem 'emojimage'
+```bash
+$ gem install emojimage
 ```
 
-And then execute:
+## Command-line
 
-    $ bundle
+```bash
+$ emojimage cast FILENAME --output OUTPUT --type TYPE [--size SIZE] [--no-wrap] [--no-transparency] [--blend=RED GREEN BLUE]
+```
 
-Or install it yourself as:
+### Options
 
-    $ gem install emojimage
-
-## Usage
-
-TODO: Write usage instructions here
-
-## Development
-
-After checking out the repo, run `bin/setup` to install dependencies. Then, run `rake false` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment. Run `bundle exec emojimage` to use the gem in this directory, ignoring other installed copies of this gem.
-
-To install this gem onto your local machine, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
-
-## Contributing
-
-Bug reports and pull requests are welcome on GitHub at https://github.com/[USERNAME]/emojimage.
-
-
-## License
-
-The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
-
+- _`--output`_ or _`-o`_ — The output filename. Required.
+- _`--type`_ or _`-t`_ — The output type. One of `image` (PNG only), `text`, or `html`. Required.
+- _`--size`_ or _`-s`_ — Emoji size. Defaults to `4`.
+- _`--no-wrap`_ — Doesn't wrap HTML output with `<code><pre></pre></code>`. Disabled by default.
+- _`--blend`_ or _`-b`_ — Color to treat as background when dealing with transparency. This way, the output image can look good on a specific background color. _Must be last option._ Example: _`--blend 255 0 0`_ (blends with red). Defaults to white (`255 255 255`).
+- _`--no-transparency`_ — Converts wholly transparent blocks to an emoji. Otherwise, keeps it transparent. Disabled by default.

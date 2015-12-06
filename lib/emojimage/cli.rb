@@ -2,13 +2,13 @@ require 'thor'
 
 module Emojimage
 	class CLI < Thor
-		option :size, :default => 4, :aliases => "-s", :type => :numeric
-		option :transparency, :default => true, :aliases => "-T", :type => :boolean
-		option :blend, :default => [255, 255, 255], :aliases => "-b", :type => :array
-		option :output, :required => true, :aliases => "-o", :type => :string
-		option :wrap, :default => true, :aliases => "-w", :type => :boolean
-		option :type, :required => true, :aliases => "-t", :type => :string, :enum => ["text", "html", "image"]
-		desc "cast INPUT [options]", "Convert image to emoji"
+		option :output, :required => true, :aliases => "-o", :type => :string, :desc => "Output filename. If an image, must be PNG."
+		option :type, :required => true, :aliases => "-t", :type => :string, :enum => ["text", "html", "image"], :desc => "Output type."
+		option :size, :default => 4, :aliases => "-s", :type => :numeric, :desc => "Emoji size"
+		option :transparency, :default => true, :aliases => "-T", :type => :boolean, :desc => "Don't convert wholly transparent blocks to emoji. Retain the transparency instead."
+		option :wrap, :default => true, :aliases => "-w", :type => :boolean, :desc => "Wraps HTML with <pre><code></code></pre>"
+		option :blend, :default => [255, 255, 255], :aliases => "-b", :type => :array, :desc => "Background color. Doesn't actually change transparency, just emoji selection."
+		desc "cast INPUT", "Convert image to emoji"
 		##
 		# CLI option to convert and save image.
 		def cast(image)
