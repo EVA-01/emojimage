@@ -10,3 +10,4 @@
 public/data/*.json
 public/images
 .DS_Store
+java/
