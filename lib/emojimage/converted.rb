@@ -1,6 +1,10 @@
 module Emojimage
+	##
+	# The canvas
 	class Converted
 		attr_reader :image, :size, :emoji
+		##
+		# `img` is the input image. Should be either a file path or a `ChunkyPNG::Image`. `size` is the chunk size that will be converted to emoji.
 		def initialize img, size = 4
 			if img.class == String
 				img = ChunkyPNG::Image.from_file img
@@ -15,6 +19,8 @@ module Emojimage
 			@image = nil
 			@original = img
 		end
+		##
+		# Run the conversion. If `transparentBlock` is true, the image will retain transparency. If false, wholly transparent areas will be emoji. Blends the transparent/semi-transparent with `blend` color.
 		def run transparentBlock = false, blend = ChunkyPNG::Color::WHITE
 			img = @original
 			w = img.width
@@ -52,6 +58,8 @@ module Emojimage
 				@emoji << rowmoji
 			end
 		end
+		##
+		# Outputs the emoji as raw text. **Run `run` first.**
 		def text
 			raise "Use 'run' first" if @image == nil
 			rows = []
@@ -68,7 +76,9 @@ module Emojimage
 			end
 			rows.join "\n"
 		end
-		def html wrap = false
+		##
+		# Outputs the emoji as HTML. If `wrap` is false, the emoji will not be placed in a code-block.
+		def html wrap = true
 			raise "Use 'run' first" if @image == nil
 			rows = []
 			for row in @emoji
@@ -90,7 +100,9 @@ module Emojimage
 				rows.join "\n"
 			end
 		end
-		def save fn, what = :image, wrap = false
+		##
+		# Save to `fn`. `what` is one of `:image`, `:text`, `:html`. `wrap` affects `:html` output.
+		def save fn, what = :image, wrap = true
 			raise "Use 'run' first" if @image == nil
 			case what
 			when :image

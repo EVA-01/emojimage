@@ -8,9 +8,13 @@ module Emojimage
 	@@emoji = Emoji.all.select { |char| !char.custom? }
 	@@where = File.expand_path "../", File.dirname(__FILE__)
 	@@info = false
+	##
+	# All the emoji
 	def emoji
 		@@emoji
 	end
+	##
+	# Grab emoji image
 	def where e
 		if e.class == Hash
 			address = e['filename']
@@ -21,9 +25,13 @@ module Emojimage
 		end
 		within "../public/images/emoji/#{address}"
 	end
+	##
+	# Find relative path.
 	def within path
 		File.expand_path path, @@where
 	end
+	##
+	# Average of an array of colors. Returns `ChunkyPNG::Color::TRANSPARENT` if `transparentBlock` is true and the colors are all transparent. Blends the transparent/semi-transparent with `blend` color.
 	def average colors, transparentBlock = false, blend = ChunkyPNG::Color::WHITE
 		color = [0.0,0.0,0.0,0.0]
 		count = 0.0
@@ -41,14 +49,20 @@ module Emojimage
 			ChunkyPNG::Color.rgb (color[0]/count).round, (color[1]/count).round, (color[2]/count).round
 		end
 	end
+	##
+	# Get the overall average color of an image.
 	def analyze img
 		average img.pixels
 	end
+	##
+	# Has this been set up with the current `blend` setting?
 	def setup? blend
 		gemojiV = "#{Gem.loaded_specs['gemoji'].version.to_s}\n#{blend}"
 		lastImport = File.open(within("../public/data/.last"), 'rb') { |f| f.read }
 		lastImport == gemojiV
 	end
+	##
+	# Sets up the enviroments by grabbing the emoji images and setting emoji info.
 	def setup blend
 		gemojiV = "#{Gem.loaded_specs['gemoji'].version.to_s}\n#{blend}"
 		unless setup? blend
@@ -59,6 +73,8 @@ module Emojimage
 			# puts "Analyzed emoji images"
 		end
 	end
+	##
+	# Grab emoji info. If it doesn't exist, return `false`.
 	def emojinfo
 		if @@info == false
 			if File.exist?(within("../public/data/emoji.json"))
@@ -69,9 +85,13 @@ module Emojimage
 		end
 		@@info
 	end
+	##
+	# Splits a hex value in case there are two hexes inside
 	def unpackhex c
 		c.hex_inspect.split '-'
 	end
+	##
+	# Create JSON file with info about emoji.
 	def codify blend = ChunkyPNG::Color::WHITE
 		res = {"characters" => []}
 		for e in @@emoji
@@ -85,9 +105,13 @@ module Emojimage
 		end
 		File.open(within("../public/data/emoji.json"), "w+") { |f| f.write res.to_json }
 	end
+	##
+	# Get distance between two colors.
 	def compare c1, c2
 		Math.sqrt((ChunkyPNG::Color.r(c1)-ChunkyPNG::Color.r(c2))**2+(ChunkyPNG::Color.g(c1)-ChunkyPNG::Color.g(c2))**2+(ChunkyPNG::Color.b(c1)-ChunkyPNG::Color.b(c2))**2)
 	end
+	##
+	# Get emoji that corresponds to `color`. `blend` represents a color to blend with for transparency (in other words, a background color).
 	def find color, blend
 		setup blend
 		data = emojinfo
@@ -97,6 +121,8 @@ module Emojimage
 			data["characters"].min_by { |char| compare color, char["value"] }
 		end
 	end
+	##
+	# Get `ChunkyPNG::Image` from emoji
 	def chunkemoji e
 		ChunkyPNG::Image.from_file(where e)
 	end

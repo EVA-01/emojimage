@@ -2,14 +2,15 @@ require 'thor'
 
 module Emojimage
 	class CLI < Thor
-
 		option :size, :default => 4, :aliases => "-s", :type => :numeric
 		option :transparency, :default => true, :aliases => "-T", :type => :boolean
 		option :blend, :default => [255, 255, 255], :aliases => "-b", :type => :array
 		option :output, :required => true, :aliases => "-o", :type => :string
-		option :wrap, :default => false, :aliases => "-w", :type => :boolean
+		option :wrap, :default => true, :aliases => "-w", :type => :boolean
 		option :type, :required => true, :aliases => "-t", :type => :string, :enum => ["text", "html", "image"]
-		desc "smart INPUT OUTPUT [options]", "Smart pixel sorting"
+		desc "cast INPUT [options]", "Convert image to emoji"
+		##
+		# CLI option to convert and save image.
 		def cast(image)
 			c = []
 			for comp in options['blend']
@@ -22,7 +23,8 @@ module Emojimage
 			else
 				raise "Bad RGB in blend option"
 			end
-			spell = Emojimage::Converted.new image, options['size'], options['transparency'], color
+			spell = Emojimage::Converted.new image, options['size']
+			spell.run options['transparency'], color
 			spell.save options['output'], options['type'].to_sym, options['wrap']
 		end
 		default_task :cast
